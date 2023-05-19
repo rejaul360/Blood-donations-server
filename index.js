@@ -29,6 +29,27 @@ async function run() {
 
     const toyCollections = client.db('toyMarket').collection('toys')
 
+    const indexKeys = {name:1 , salername:1}
+    const indexOptions = {name: "serchName"}
+
+    const result = await toyCollections.createIndex(indexKeys,indexOptions)
+
+    app.get('/serchByName/:text',async(req,res)=>{
+      const searchText = req.params.text;
+
+      const result = await toyCollections.find(
+        {
+          $or:[
+            {name: {$regex: searchText, $options: "i"} },
+            {salername: {$regex: searchText, $options: "i"}},
+          ],
+        }
+      ).toArray()
+      res.send(result)
+    })
+
+  
+
     //Post/ Add toy to Fetch here------------
     app.post('/postToy', async(req,res) => {
         const body = req.body;
