@@ -50,7 +50,7 @@ async function run() {
 
   
 
-    //Post Add toy to Fetch here------------
+    //Post Add toy to Fetch here-------
     app.post('/postToy', async(req,res) => {
         const body = req.body;
         const result = await toyCollections.insertOne(body)
