@@ -29,6 +29,7 @@ async function run() {
 
     const toyCollections = client.db('toyMarket').collection('toys')
 
+    //Post/ Add toy to Fetch here------------
     app.post('/postToy', async(req,res) => {
         const body = req.body;
         const result = await toyCollections.insertOne(body)
@@ -39,6 +40,12 @@ async function run() {
     app.get('/allToy' , async(req,res)=>{
         const result = await toyCollections.find({}).toArray()
         res.send(result)
+    })
+
+    app.get('/myToy/:email', async(req,res)=>{
+      console.log(req.params.email)
+      const result = await toyCollections.find({postedBy:req.params.email}).toArray()
+      res.send(result);
     })
 
 
