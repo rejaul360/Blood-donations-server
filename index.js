@@ -56,9 +56,10 @@ async function run() {
 
     const result = await toyCollections.createIndex(indexKeys, indexOptions)
 
+
+    //=======Search by name----------------->>>>
     app.get('/serchByName/:text', async (req, res) => {
       const searchText = req.params.text;
-
       const result = await toyCollections.find(
         {
           $or: [
@@ -70,6 +71,25 @@ async function run() {
       res.send(result)
     })
 
+    //===========Dssending---------------->>>>>>>>
+    app.get('/descending', async(req, res)=>{
+      let query= {}
+      if(req.query?.email){
+        query = { email: req.query.email}
+      }
+      const result = await toyCollections.find(query).sort({price: 1}).toArray()
+      res.send(result);
+    })
+
+        //===========Assending---------------->>>>>>>>
+        app.get('/aescending', async(req, res)=>{
+          let query= {}
+          if(req.query?.email){
+            query = { email: req.query.email}
+          }
+          const result = await toyCollections.find(query).sort({price: -1}).toArray()
+          res.send(result);
+        })
 
 
     //Post Add toy to Fetch here-------
