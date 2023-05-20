@@ -3,7 +3,7 @@ const app = express()
 const cors = require('cors');
 require('dotenv').config()
 
-const port =  process.env.PORT || 5000 ;
+const port = process.env.PORT || 5000;
 
 const corsConfig = {
   origin: '*',
@@ -51,73 +51,92 @@ async function run() {
 
     const toyCollections = client.db('toyMarket').collection('toys')
 
-    const indexKeys = {name:1 , salername:1}
-    const indexOptions = {name: "serchName"}
+    const indexKeys = { name: 1, salername: 1 }
+    const indexOptions = { name: "serchName" }
 
-    const result = await toyCollections.createIndex(indexKeys,indexOptions)
+    const result = await toyCollections.createIndex(indexKeys, indexOptions)
 
-    app.get('/serchByName/:text',async(req,res)=>{
+    app.get('/serchByName/:text', async (req, res) => {
       const searchText = req.params.text;
 
       const result = await toyCollections.find(
         {
-          $or:[
-            {name: {$regex: searchText, $options: "i"} },
-            {salername: {$regex: searchText, $options: "i"}},
+          $or: [
+            { name: { $regex: searchText, $options: "i" } },
+            { salername: { $regex: searchText, $options: "i" } },
           ],
         }
       ).toArray()
       res.send(result)
     })
 
-  
+
 
     //Post Add toy to Fetch here-------
-    app.post('/postToy', async(req,res) => {
-        const body = req.body;
-        const result = await toyCollections.insertOne(body)
-        res.send(result)
-        console.log(result)
+    app.post('/postToy', async (req, res) => {
+      const body = req.body;
+      const result = await toyCollections.insertOne(body)
+      res.send(result)
+      console.log(result)
     })
 
-    app.get('/allToy' , async(req,res)=>{
-        const result = await toyCollections.find({}).toArray()
-        res.send(result)
+    app.get('/allToy', async (req, res) => {
+      const result = await toyCollections.find({}).toArray()
+      res.send(result)
     })
 
-    app.get('/allToy/:id', async(req,res)=>{
-      const id =req.params.id
-      const query = {_id: new ObjectId(id)}
+    app.get('/allToy/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
       const result = await toyCollections.findOne(query)
       res.send(result)
     })
 
     //delete operationss-------------------
-    app.delete('/allToy/:id', async(req,res)=>{
+    app.delete('/allToy/:id', async (req, res) => {
       const id = req.params.id
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await toyCollections.deleteOne(query)
       res.send(result)
     })
 
-    // app.get('/myToy/:email', async(req,res)=>{
-    //   console.log(req.params.email)
-    //   const result = await toyCollections.find({postedBy:req.params.email}).toArray()
-    //   res.send(result);
-    // })
+    //----Update------------
+    app.put('/allToy/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const updatedToyInfo = req.body
+      const toyInfo = {
+        $set: {
+          name: updatedToyInfo.name,
+          price: updatedToyInfo.price,
+          description: updatedToyInfo.description,
+          quantity: updatedToyInfo.quantity,
+          rating: updatedToyInfo.rating,
+        }
+      }
+      const result = await toyCollections.updateOne(filter, toyInfo, options)
+      res.send(result);
+    })
+
+    app.get('/myToy/:email', async(req,res)=>{
+      console.log(req.params.email)
+      const result = await toyCollections.find({postedBy:req.params.email}).toArray()
+      res.send(result);
+    })
 
 
-    // app.put("/updateInfo/:id", async(req,res)=>{
-    //   const id =req.params.id
-    //   console.log(id);
-    //   const body = req.body
-    //   console.log(body);
+    app.put("/updateInfo/:id", async(req,res)=>{
+      const id =req.params.id
+      console.log(id);
+      const body = req.body
+      console.log(body);
 
-    //   const filter = { _id: new ObjectId(id)}
-    //   console.log(filter);
+      const filter = { _id: new ObjectId(id)}
+      console.log(filter);
 
 
-    // })
+    })
 
 
     // Send a ping to confirm a successful connection
