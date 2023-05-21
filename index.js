@@ -36,29 +36,24 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.arwkaoj.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+const client = new MongoClient(uri, { useUnifiedTopology: true}, { useNewUrlParser: true }, { connectTimeoutMS: 30000 }, { keepAlive: 1});
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    
     const toyCollections = client.db('toyMarket').collection('toys')
+
+    //=======Search by name----------------->>>>
+    app.get('/serchByName/:text', async (req, res) => {
+
 
     const indexKeys = { name: 1, salername: 1 }
     const indexOptions = { name: "serchName" }
     //=========  My toy Collection in mongodb----------->>>>>>>>
-    const result = await toyCollections.createIndex(indexKeys, indexOptions)
-
-
-    //=======Search by name----------------->>>>
-    app.get('/serchByName/:text', async (req, res) => {
+    const result2 = await toyCollections.createIndex(indexKeys, indexOptions)
       const searchText = req.params.text;
       const result = await toyCollections.find(
         {
@@ -161,6 +156,16 @@ async function run() {
       console.log(filter);
 
 
+    })
+
+
+    app.get('/category', async(req,res)=>{
+      let query = {}
+      if(req.query?.category){
+        query = {category : req.query.category}
+      }
+      const result = await toyCollections.find(query).toArray()
+      res.send(result)
     })
 
 
