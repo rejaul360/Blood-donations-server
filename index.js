@@ -53,7 +53,7 @@ async function run() {
 
     const indexKeys = { name: 1, salername: 1 }
     const indexOptions = { name: "serchName" }
-
+    //=========  My toy Collection in mongodb----------->>>>>>>>
     const result = await toyCollections.createIndex(indexKeys, indexOptions)
 
 
@@ -95,13 +95,16 @@ async function run() {
     //Post Add toy to Fetch here-------
     app.post('/postToy', async (req, res) => {
       const body = req.body;
+      body.createdAt = new Date()
       const result = await toyCollections.insertOne(body)
       res.send(result)
       console.log(result)
     })
 
     app.get('/allToy', async (req, res) => {
-      const result = await toyCollections.find({}).toArray()
+      const result = await toyCollections.find({})
+      .sort({createdAt: -1})
+      .toArray()
       res.send(result)
     })
 
@@ -141,7 +144,9 @@ async function run() {
 
     app.get('/myToy/:email', async(req,res)=>{
       console.log(req.params.email)
-      const result = await toyCollections.find({postedBy:req.params.email}).toArray()
+      const result = await toyCollections.find({postedBy:req.params.email})
+      .sort({createdAt: -1})
+      .toArray()
       res.send(result);
     })
 
